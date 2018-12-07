@@ -1,0 +1,18 @@
+show 'hello world!'
+~I am a comment
+
+show 'what is up?'
+~show 1+1
+
+show ''
+
+~Variable Assignment
+my_name is: 'miles'
+show my_name
+
+~String interpolation
+today is: 'thursday'
+show 'Hey, today is :today:!'
+
+~Variables can be interpolated alone, too.
+show :today:
