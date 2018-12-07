@@ -6,7 +6,7 @@ with open('README.md') as f:
 setuptools.setup(
 	name='ryf',
 	version='0.1',
-	scripts=['comp.py'],
+	scripts=['ryf.py'],
 	author='Miles Boswell',
 	author_email='milesboz@me.com',
 	description='A programming language written in python',
