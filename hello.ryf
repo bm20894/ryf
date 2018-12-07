@@ -7,11 +7,15 @@ show 'what is up?'
 show ''
 
 ~Variable Assignment
-my_name is: 'miles'
+my_name is: miles
+show my_name
+
+~Of course, variables can be overwritten
+my_name is: 'miles boswell'
 show my_name
 
 ~String interpolation
-today is: 'thursday'
+today is: thursday
 show 'Hey, today is :today:!'
 
 ~Variables can be interpolated alone, too.

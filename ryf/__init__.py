@@ -41,9 +41,6 @@ class Variable(Log):
 	def is_defined(self):
 		return self.name in [v.name for v in Log.vars]
 
-	def __eq__(self, name):
-		return self.name == name
-
 	def __call__(self):
 		Log.vars.append(self)
 
@@ -51,14 +48,18 @@ class Variable(Log):
 		return '{} = {}'.format(self.name, self.value)
 
 def get_var(name):
-	if name in [v.name for v in Log.vars]:
-		i = Log.vars.index(name)
+	names = [v.name for v in Log.vars]
+	if name in names and len(Log.vars) > 0:
+		i = names.index(name)
 		return Log.vars[i]
 	else:
 		return None
 
+def in_string(s):
+	return s.startswith('\'') and s.endswith('\'')
+
 def trim(s):
-	if s.startswith('\'') and s.endswith('\''):
+	if in_string(s):
 		return s[1:-1]
 	else:
 		return s
@@ -80,11 +81,13 @@ def parse(contents):
 					'''check if the variable has been defined'''
 					if data.startswith(':') and data.endswith(':'):
 						data = data[1:-1]
-					if data in [v.name for v in Log.vars]:
-						stuff.append(Command(c, get_var(data).value))
-						continue
+					try:
+						val = get_var(data).value
+					except:
+						error('Undefined variable A: {}'.format(data), e=line)
 					else:
-						error('Undefined variable: {}'.format(data), e=line)
+						stuff.append(Command(c, val))
+						continue
 
 				'''string interpolation'''
 				pol_regex = r':(\w+):'
@@ -98,7 +101,7 @@ def parse(contents):
 						stuff.append(Command(c, s))
 						continue
 					else:
-						error('Undefined variable: {}'.format(data), e=line)
+						error('Undefined variable B: {}'.format(data), e=line)
 
 				msg_regex = r'\'?([-\w\d ,!.;?]*)\'?'
 				string = re.search(msg_regex, data).group(1)
@@ -108,11 +111,19 @@ def parse(contents):
 			elif line.split()[1] == 'is:':
 				data = line.split()
 				data.pop(1)
-				if len(data) > 2: error('Too many values in assignment.', e=line)
-				var, value = data[0], trim(data[1])
-				stuff.append(Variable(var, value))
+				val = ' '.join(data[1:])
+				if not in_string(val) and len(data) > 2:
+					error('Too many values in assignment.', e=line)
+				name, value = data[0], trim(val)
+				
+				for v in Log.vars:
+					if name == v.name:
+						# overwrite the old variable with the new value
+						v.value = value
+						break
+				else:
+					stuff.append(Variable(name, value))
 
 			else:
 				error('Not a real command.', e=line)
-
 	return stuff
